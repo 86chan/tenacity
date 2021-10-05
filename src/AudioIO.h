@@ -428,23 +428,6 @@ public:
    NoteTrackConstArray mMidiPlaybackTracks;
 #endif
 
-#ifdef EXPERIMENTAL_AUTOMATED_INPUT_LEVEL_ADJUSTMENT
-   bool           mAILAActive;
-   bool           mAILAClipped;
-   int            mAILATotalAnalysis;
-   int            mAILAAnalysisCounter;
-   double         mAILAMax;
-   double         mAILAGoalPoint;
-   double         mAILAGoalDelta;
-   double         mAILAAnalysisTime;
-   double         mAILALastStartTime;
-   double         mAILAChangeFactor;
-   double         mAILATopLevel;
-   double         mAILAAnalysisEndTime;
-   double         mAILAAbsolutStartTime;
-   unsigned short mAILALastChangeType;  //0 - no change, 1 - increase change, 2 - decrease change
-#endif
-
    std::unique_ptr<AudioThread> mThread;
 #ifdef EXPERIMENTAL_MIDI_OUT
 #ifdef USE_MIDI_THREAD
@@ -646,38 +629,6 @@ public:
    /** \brief Pause and un-pause playback and recording */
    void SetPaused(bool state);
 
-   /* Mixer services are always available.  If no stream is running, these
-    * methods use whatever device is specified by the preferences.  If a
-    * stream *is* running, naturally they manipulate the mixer associated
-    * with that stream.  If no mixer is available, output is emulated and
-    * input is stuck at 1.0f (a gain is applied to output samples).
-    */
-   void SetMixer(int inputSource, float inputVolume,
-                 float playbackVolume);
-   void GetMixer(int *inputSource, float *inputVolume,
-                 float *playbackVolume);
-   /** @brief Find out if the input hardware level control is available
-    *
-    * Checks the mInputMixerWorks variable, which is set up in
-    * AudioIOBase::HandleDeviceChange(). External people care, because we want to
-    * disable the UI if it doesn't work.
-    */
-   bool InputMixerWorks();
-
-   /** @brief Find out if the output level control is being emulated via software attenuation
-    *
-    * Checks the mEmulateMixerOutputVol variable, which is set up in
-    * AudioIOBase::HandleDeviceChange(). External classes care, because we want to
-    * modify the UI if it doesn't work.
-    */
-   bool OutputMixerEmulated();
-
-   /** \brief Get the list of inputs to the current mixer device
-    *
-    * Returns an array of strings giving the names of the inputs to the
-    * soundcard mixer (driven by PortMixer) */
-   wxArrayString GetInputSourceNames();
-
    sampleFormat GetCaptureFormat() { return mCaptureFormat; }
    unsigned GetNumPlaybackChannels() const { return mNumPlaybackChannels; }
    unsigned GetNumCaptureChannels() const { return mNumCaptureChannels; }
@@ -693,14 +644,6 @@ public:
    /** \brief Function to automatically set an acceptable volume
     *
     */
-   #ifdef EXPERIMENTAL_AUTOMATED_INPUT_LEVEL_ADJUSTMENT
-      void AILAInitialize();
-      void AILADisable();
-      bool AILAIsActive();
-      void AILAProcess(double maxPeak);
-      void AILASetStartTime();
-      double AILAGetLastDecisionTime();
-   #endif
 
    bool IsAvailable(AudacityProject *projecT) const;
 

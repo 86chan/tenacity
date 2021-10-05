@@ -179,6 +179,7 @@ void AboutDialog::CreateInformationTab(ShuttleGui& AboutDialogGUI) {
     AddBuildInfoRow(&informationStr, XO("Version:"), BuildInfo::getRevisionIdentifier());
     AddBuildInfoRow(&informationStr, XO("Build type:"), BuildInfo::getBuildType());
     AddBuildInfoRow(&informationStr, XO("Compiler:"), BuildInfo::getCompilerVersionString());
+    AddBuildInfoRow(&informationStr, XO("wxWidgets:"), BuildInfo::getWxWidgetsVersion());
 
     // Install prefix
 #ifdef __WXGTK__
@@ -201,7 +202,6 @@ void AboutDialog::CreateInformationTab(ShuttleGui& AboutDialogGUI) {
     informationStr
         << wxT("<table>");   // start table of file formats supported
 
-    AddBuildInfoRow(&informationStr, wxT("wxWidgets"), XO("Cross-platform GUI library"), Verbatim(wxVERSION_NUM_DOT_STRING_T));
     AddBuildInfoRow(&informationStr, wxT("PortAudio"), XO("Audio playback and recording"), Verbatim(wxT("v19")));
     AddBuildInfoRow(&informationStr, wxT("libsoxr"), XO("Sample rate conversion"), enabled);
 
@@ -245,9 +245,6 @@ void AboutDialog::CreateInformationTab(ShuttleGui& AboutDialogGUI) {
     #endif
     #ifndef USE_LV2
     #define USE_LV2 0
-    #endif
-    #ifndef USE_PORTMIXER
-    #define USE_PORTMIXER 0
     #endif
     #ifndef USE_SOUNDTOUCH
     #define USE_SOUNDTOUCH 0
@@ -317,9 +314,6 @@ void AboutDialog::CreateInformationTab(ShuttleGui& AboutDialogGUI) {
     #endif
     #ifdef USE_LV2
         AddBuildInfoRow(&informationStr, wxT("LV2"), buildInfo_pluginSupport, USE_LV2 ? enabled : disabled);
-    #endif
-    #ifdef USE_PORTMIXER
-        AddBuildInfoRow(&informationStr, wxT("PortMixer"), buildInfo_soundCardMixerSupport, USE_PORTMIXER ? enabled : disabled);
     #endif
     #ifdef USE_SOUNDTOUCH
         AddBuildInfoRow(&informationStr, wxT("SoundTouch"), buildInfo_pitchTempoSupport, USE_SOUNDTOUCH ? enabled : disabled);

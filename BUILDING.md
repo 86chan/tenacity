@@ -5,8 +5,12 @@
 ### Linux
 
 Most distributions do not package all of Tenacity's dependencies (yet).
-wxWidgets 3.1 is required for building Tenacity but many distributions only
-package wxWidgets 3.0. [PortMidi](https://github.com/mixxxdj/portmidi) and
+wxWidgets 3.1 is suggested for building Tenacity but many distributions only
+package wxWidgets 3.0. When 3.0 is used instead of 3.1, the main user visible
+known drawback is that a few user interface texts will not be localized, and
+the effects of not having various wxWidgets bug fixes that have not been
+backported to the stable 3.0 series.
+[PortMidi](https://github.com/mixxxdj/portmidi) and
 [PortSMF](https://github.com/tenacityteam/portsmf) are required for MIDI support
 but some distributions do not package PortSMF (Tenacity can still build without
 MIDI support). [libsbsms](https://github.com/claytonotey/libsbsms) is an
@@ -29,7 +33,7 @@ directory, such as `~/Downloads/wxWidgets-build`:
 ```
 cd ~/Downloads
 mkdir wxWidgets-build && cd wxWidgets-build  # create and go to a new empty build directory
-cmake -G Ninja ~/Downloads/wxWidgets-3.1.5   # configure wxWidgets from the assumed download location 
+cmake -G Ninja ~/Downloads/wxWidgets-3.1.5   # configure wxWidgets from the assumed download location
 cmake --build .  # actual compilation
 ```
 
@@ -47,9 +51,24 @@ To install Tenacity's dependencies, run:
 sudo apt-get install build-essential libavcodec-dev libavformat-dev libavutil-dev libflac++-dev libglib2.0-dev libgtk-3-dev libid3tag0-dev libjack-dev liblilv-dev libmad0-dev libmp3lame-dev libogg-dev libpng-dev portaudio19-dev libportmidi-dev libserd-dev libsndfile1-dev libsord-dev libsoundtouch-dev libsoxr-dev libsuil-dev libtwolame-dev vamp-plugin-sdk libvorbis-dev lv2-dev zlib1g-dev cmake ninja-build libjpeg-dev libtiff-dev liblzma-dev libsqlite3-dev
 ```
 
-Note that you may need to install `libjack-jackd2-dev` instead of `libjack-dev` if you see a package conflict involving `libjack0`.
+##### Notes
 
-wxWidgets 3.1 is required but not packaged in Debian or Ubuntu. Refer
+- The version of PortSMF included in Debian & Ubuntu distributions
+(`libportsmf-dev`) is not included in the above list because it is outdated
+and using it will cause Tenacity to fail to build. If you want to use MIDI, it
+is recommended to use our modified version of
+[PortSMF](https://github.com/tenacityteam/portsmf) that you should build
+from source until the packaged version gets updated. If you are installing
+PortSMF to any other location than the default location where libraries get
+installed (`/usr/local/lib`, `/usr/lib`, etc.) such as your `$HOME` directory,
+you should point CMake to it by adding `-DCMAKE_PREFIX_PATH=/path/to/portsmf`
+to the CMake configuration step.
+
+- Additionally, if you happen to come across a package conflict involving a
+package called `libjack0`, you may need to install `libjack-jack2-dev` instead
+of `libjack-dev`.
+
+- wxWidgets 3.1 is suggested but not packaged in Debian or Ubuntu. Refer
 to the
 [wxWidgets documentation](https://docs.wxwidgets.org/3.1/overview_cmake.html)
 for how to install it from source code, or see the [previous section](#wxwidgets-from-source). The above package list
@@ -61,6 +80,12 @@ example, if you installed wxWidgets to /home/user/local:
 
 ```
 export WX_CONFIG=/home/user/local/bin/wx-config
+```
+
+- Alternatively, you may skip installing wxWidgets 3.1 and use 3.0 instead:
+
+```
+sudo apt-get install libwxgtk3.0-dev
 ```
 
 #### Fedora
@@ -99,7 +124,8 @@ export WX_CONFIG=/home/user/local/bin/wx-config
 
 #### Arch
 
-Install `wxgtk3-dev-light` with your AUR helper of choice, for example:
+To use wxWidgets 3.1, install `wxgtk3-dev-light` with your AUR helper of
+choice, for example:
 
 ```
 paru -S wxgtk3-dev-light
@@ -111,6 +137,9 @@ this AUR package:
 ```
 export WX_CONFIG=/usr/bin/wx-config-gtk3-3.1
 ```
+
+Alternatively, install `wxgtk3` with pacman to use wxWidgets 3.0, and set
+`WX_CONFIG=/usr/bin/wx-config-gtk3`.
 
 Install the rest of the build dependencies from the main Arch repository:
 
@@ -129,7 +158,7 @@ community repository:
 sudo apk add cmake samurai lame-dev libsndfile-dev soxr-dev sqlite-dev portaudio-dev portmidi-dev libid3tag-dev soundtouch-dev libmad-dev ffmpeg-dev
 ```
 
-wxWidgets 3.1 is required but not packaged in Alpine Linux. Refer to the
+wxWidgets 3.1 is suggested but not packaged in Alpine Linux. Refer to the
 [wxWidgets documentation](https://github.com/wxWidgets/wxWidgets/blob/master/docs/gtk/install.md)
 for how to install it from source code, and make sure to set
 `--disable-xlocale` in the configuration.
@@ -140,7 +169,20 @@ To install wxWidgets' dependencies:
 sudo apk add gtk+3.0-dev zlib-dev libpng-dev tiff-dev libjpeg-turbo-dev expat-dev
 ```
 
+Alternatively, install `wxgtk3-dev` with apk to use wxWidgets 3.0, and set
+`WX_CONFIG=/usr/bin/wx-config-gtk3`.
+
 TODO: add portsmf and libsbsms to this package list when aports are accepted.
+
+
+#### FreeBSD
+
+wxWidgets 3.1.5 is packaged in FreeBSD's repositories. Install it and the rest
+of Tenacity's dependencies:
+
+```
+sudo pkg install wx31-gtk3 cmake ninja pkgconf lame libsndfile libsoxr portaudio lv2 lilv suil vamp-plugin-sdk portmidi libid3tag twolame libmad soundtouch ffmpeg
+```
 
 #### vcpkg on Linux
 
@@ -209,7 +251,14 @@ You will also need to install a few build tools and dependencies, which can be
 installed from [Homebrew](https://brew.sh/):
 
 ```
-brew install cmake ccache ninja nasm wxwidgets
+brew install cmake ccache ninja nasm mono wxwidgets
+```
+
+You must set the `WX_CONFIG` environment variable for CMake to find wxWidgets
+installed from Homebrew:
+
+```
+export WX_CONFIG=/usr/local/bin/wx-config
 ```
 
 The rest of the dependencies will be built automatically with vcpkg when
@@ -291,5 +340,5 @@ has outdated libraries that do not build with Tenacity.
   * **VAMP** (ON|OFF): VAMP plugin hosting support. Requires VAMP host SDK.
   * **LV2** (ON|OFF): LV2 plugin hosting support. Requires LV2, lilv, and
     suil libraries.
-  * **VST2** (ON|OFF): VST2 plugin hosting support. No libraries are required.
-    ON by default.
+  * **VST2** (ON|OFF): VST2 plugin hosting support. Requires GTK with X11
+    support on non-Apple/Windows.
